@@ -1,19 +1,46 @@
-const opciones = async () =>{
-  return await fetch ("https://api.genshin.dev/")
-}
-console.log(opciones());
+import { useEffect, useState } from "react";
+import {fetchHelper} from "./helpers/fetchHelper";
 
-const App  = () => {
+const tipos ={
+  artifacts: "Artefactos",
+  boss: "jefes",
+  characters: "Personajes",
+  consumables: "Consumibles",
+  domains: "Dominios",
+  elements: "Elementos",
+  enemies: "Enemigos",
+  materials: "Materiales",
+  nations: "Naciones",
+  weapons: "Armas",
+}
+
+const  App = () =>{
+  const [selects, setSelects] = useState({
+    types: []
+  });
+
+  const fetchTypes= async()=>{
+    const respuesta = await fetchHelper("https://api.genshin.dev/");
+    const {types} = await respuesta.json();
+    console.log({types});
+    setSelects ({...selects, types});
+  }
+
+  useEffect(() => {
+    fetchTypes().catch(console.error);
+  
+  }, []);
+ 
   return (
-    <div className="container">
-     <h1>Genshin Impact Dex</h1>
-     <hr/>
+    <div className="container"> 
+      <h1>Genshin Impact Dex</h1>
+     <hr /> 
      <select>
        <option value=""> Seleccione el tipo de información</option>
-       <option value="artifacts"> Artefactos</option>
-       <option value="boss"> Jefes</option>
-       <option value="characters"> Personajes</option>
-       
+       {
+         selects.types.map((type) =>(
+           <option value = {type}>{tipos[type]}</option>
+         ))}
      </select>
     </div>
   );
