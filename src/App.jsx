@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import CustomSelect from "./components/CustomSelect";
 import { fetchHelper } from "./helpers/fetchHelper";
 
 const tipos = {
@@ -15,18 +16,36 @@ const tipos = {
 };
 
 const App = () => {
+  const initialSelected = {
+    artifacts: false,
+    boss: false,
+    characters: false,
+    consumables: false,
+    domains: false,
+    elements: false,
+    enemies: false,
+    materials: false,
+    nations: false,
+    weapons: false,
+  };
+
   const [selects, setSelects] = useState({
     types: [],
+    selected: { ...initialSelected },
   });
 
   const fetchTypes = async (url, item) => {
-    const respuestajson = await fetchHelper(url);
-    const respuesta = await respuestajson.json();
+    const respuestaJson = await fetchHelper(url);
+    const respuesta = await respuestaJson.json();
 
     if (item === "types") {
       setSelects({ ...selects, [item]: respuesta[item] });
     } else {
-      setSelects({ ...selects, [item]: respuesta });
+      setSelects({
+        ...selects,
+        [item]: respuesta,
+        selected: { ...selects.initialSelected, [item]: true },
+      });
     }
     console.log(selects);
   };
@@ -36,9 +55,7 @@ const App = () => {
   }, []);
 
   const handleChangeType = ({ target }) => {
-    fetchTypes(`https://api.genshin.dev/${target.value}`, target.value).catch(
-      console.error
-    );
+    fetchTypes(`https://api.genshin.dev/${target.value}`, target.value);
   };
 
   return (
@@ -54,16 +71,71 @@ const App = () => {
         ))}
       </select>
 
-      {selects.materials && (
-        <select name="materials">
-          <option value="">Seleccione un material</option>
-          {selects.materials.map((material) => (
-            <option value={material} key={material}>
-              {material}
-            </option>
-          ))}
-        </select>
+      {selects.selected.artifacts && (
+        <CustomSelect
+          name="artifacts"
+          label="Seleccione un set de artefactos"
+          itemArray={selects.artifacts}
+        />
       )}
+      {selects.selected.materials && (
+        <CustomSelect
+          name="materials"
+          label="Seleccione un material"
+          itemArray={selects.materials}
+        />
+      )}
+     
+      {selects.selected.characters && (
+        <CustomSelect
+          name="characters"
+          label="Seleccione un personaje"
+          itemArray={selects.characters}
+        />
+      )}
+      {selects.selected.consumables && (
+        <CustomSelect
+          name="consumables"
+          label="Seleccione un consumible"
+          itemArray={selects.consumables}
+        />
+      )}
+      {selects.selected.domains && (
+        <CustomSelect
+          name="domains"
+          label="Seleccione un dominio"
+          itemArray={selects.domains}
+        />
+      )}
+      {selects.selected.elements && (
+        <CustomSelect
+          name="elements"
+          label="Seleccione un elemento"
+          itemArray={selects.elements}
+        />
+      )}
+      {selects.selected.enemies && (
+        <CustomSelect
+          name="enemies"
+          label="Seleccione un enemigo"
+          itemArray={selects.enemies}
+        />
+      )}
+      {selects.selected.nations && (
+        <CustomSelect
+          name="nations"
+          label="Seleccione una nación"
+          itemArray={selects.nations}
+        />
+      )}
+      {selects.selected.weapons && (
+        <CustomSelect
+          name="weapons"
+          label="Seleccione un arma"
+          itemArray={selects.weapons}
+        />
+      )}
+    
     </div>
   );
 };
