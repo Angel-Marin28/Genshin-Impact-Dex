@@ -31,31 +31,45 @@ const App = () => {
 
   const [selects, setSelects] = useState({
     types: [],
-    selected: { ...initialSelected },
+    isSelected: { ...initialSelected },
+    selected: {},
   });
 
-  const fetchTypes = async (url, item) => {
+  const fetchTypes = async (item, subItem) => {
+    let url = "https://api.genshin.dev/";
+    if (item !== "types") {
+      url = `https://api.genshin.dev/${item}`;
+    }
+    if (subItem) {
+      url = `https://api.genshin.dev/${item}/${subItem}`;
+    }
+
     const respuestaJson = await fetchHelper(url);
     const respuesta = await respuestaJson.json();
 
-    if (item === "types") {
-      setSelects({ ...selects, [item]: respuesta[item] });
+    if (subItem) {
+      setSelects({ ...selects, selected: respuesta });
     } else {
-      setSelects({
-        ...selects,
-        [item]: respuesta,
-        selected: { ...selects.initialSelected, [item]: true },
-      });
+      if (item === "types") {
+        setSelects({ ...selects, [item]: respuesta[item] });
+      } else {
+        setSelects({
+          ...selects,
+          [item]: respuesta,
+          isSelected: { ...initialSelected, [item]: true },
+          selected: {},
+        });
+      }
     }
-    console.log(selects);
+    console.log(respuesta);
   };
 
   useEffect(() => {
-    fetchTypes("https://api.genshin.dev/", "types").catch(console.error);
+    fetchTypes("types").catch(console.error);
   }, []);
 
   const handleChangeType = ({ target }) => {
-    fetchTypes(`https://api.genshin.dev/${target.value}`, target.value);
+    fetchTypes(target.value).catch(console.error);
   };
 
   return (
@@ -71,71 +85,106 @@ const App = () => {
         ))}
       </select>
 
-      {selects.selected.artifacts && (
+      {selects.isSelected.boss && <underConstruction />}
+
+      {selects.isSelected.artifacts && (
         <CustomSelect
           name="artifacts"
           label="Seleccione un set de artefactos"
           itemArray={selects.artifacts}
+          fetchTypes={fetchTypes}
         />
       )}
-      {selects.selected.materials && (
-        <CustomSelect
-          name="materials"
-          label="Seleccione un material"
-          itemArray={selects.materials}
-        />
-      )}
-     
-      {selects.selected.characters && (
+
+      {selects.isSelected.characters && (
         <CustomSelect
           name="characters"
           label="Seleccione un personaje"
           itemArray={selects.characters}
+          fetchTypes={fetchTypes}
         />
       )}
-      {selects.selected.consumables && (
+
+      {selects.isSelected.consumables && (
         <CustomSelect
           name="consumables"
           label="Seleccione un consumible"
           itemArray={selects.consumables}
+          fetchTypes={fetchTypes}
         />
       )}
-      {selects.selected.domains && (
+
+      {selects.isSelected.domains && (
         <CustomSelect
           name="domains"
           label="Seleccione un dominio"
           itemArray={selects.domains}
+          fetchTypes={fetchTypes}
         />
       )}
-      {selects.selected.elements && (
+
+      {selects.isSelected.elements && (
         <CustomSelect
           name="elements"
           label="Seleccione un elemento"
           itemArray={selects.elements}
+          fetchTypes={fetchTypes}
         />
       )}
-      {selects.selected.enemies && (
+
+      {selects.isSelected.enemies && (
         <CustomSelect
           name="enemies"
           label="Seleccione un enemigo"
           itemArray={selects.enemies}
+          fetchTypes={fetchTypes}
         />
       )}
-      {selects.selected.nations && (
+
+      {selects.isSelected.materials && (
+        <CustomSelect
+          name="materials"
+          label="Seleccione un material"
+          itemArray={selects.materials}
+          fetchTypes={fetchTypes}
+        />
+      )}
+
+      {selects.isSelected.nations && (
         <CustomSelect
           name="nations"
           label="Seleccione una nación"
           itemArray={selects.nations}
+          fetchTypes={fetchTypes}
         />
       )}
-      {selects.selected.weapons && (
+
+      {selects.isSelected.weapons && (
         <CustomSelect
           name="weapons"
           label="Seleccione un arma"
           itemArray={selects.weapons}
+          fetchTypes={fetchTypes}
         />
       )}
-    
+
+      <hr />
+      <div>
+        {Object.entries(selects.selected).length !== 0 &&
+          !selects.isSelected.boss &&
+          Object.entries(selects.selected).map((item) => (
+            <h4> {`${item[0]}: ${item[1]}`} </h4>
+          ))}
+
+        {selects.isSelected.boss && (
+          <div>
+            <img
+              src="https://i.ytimg.com/vi/McRDGAxiR2k/hqdefault.jpg"
+              alt="Imagen en construcción"
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
